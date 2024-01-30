@@ -1,22 +1,19 @@
-import 'package:doc_doc/core/helpers/spacing.dart';
-import 'package:doc_doc/core/theming/styles.dart';
-import 'package:doc_doc/core/widgets/app_text_button.dart';
-import 'package:doc_doc/core/widgets/app_text_form_field.dart';
-import 'package:doc_doc/features/login/ui/widgets/already_have_account_text.dart';
-import 'package:doc_doc/features/login/ui/widgets/terms_and_conditions_text.dart';
+import 'package:doc_doc/features/login/data/models/login_request_body.dart';
+import 'package:doc_doc/features/login/logic/cubit/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../core/helpers/spacing.dart';
+import '../../../core/theming/styles.dart';
+import '../../../core/widgets/app_text_button.dart';
+import 'widgets/already_have_account_text.dart';
+import 'widgets/email_and_password.dart';
+import 'widgets/login_bloc_listener.dart';
+import 'widgets/terms_and_conditions_text.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final formKey = GlobalKey<FormState>();
-  bool isObscureText = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,57 +25,40 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome Back",
+                  'Welcome Back',
                   style: TextStyles.font24BlueBold,
                 ),
                 verticalSpace(8),
                 Text(
-                  "We're excited to have you back, can't wait to see what you've been up to since you last logged in.",
+                  'We\'re excited to have you back, can\'t wait to see what you\'ve been up to since you last logged in.',
                   style: TextStyles.font14GrayRegular,
                 ),
                 verticalSpace(36),
-                // Form widget
-                Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      AppTextFormField(
-                          hintText: "Email", validator: (value) {}),
-                      verticalSpace(18),
-                      AppTextFormField(
-                          hintText: "Password",
-                          isObscureText: isObscureText,
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isObscureText = !isObscureText;
-                              });
-                            },
-                            child: Icon(
-                              isObscureText
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                          ),
-                          validator: (value) {}),
-                      verticalSpace(24),
-                      Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: Text(
-                            "Forgot Password?",
-                            style: TextStyles.font13BlueRegular,
-                          )),
-                      verticalSpace(40),
-                      AppTextButton(
-                          buttonText: "Login",
-                          textStyle: TextStyles.font16WhiteSemiBold,
-                          onPressed: () {}),
-                      verticalSpace(16),
-                      const TermsAndConditionsText(),
-                      verticalSpace(60),
-                      const AlreadyHaveAccountText(),
-                    ],
-                  ),
+                Column(
+                  children: [
+                    const EmailAndPassword(),
+                    verticalSpace(24),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyles.font13BlueRegular,
+                      ),
+                    ),
+                    verticalSpace(40),
+                    AppTextButton(
+                      buttonText: "Login",
+                      textStyle: TextStyles.font16WhiteSemiBold,
+                      onPressed: () {
+                        validateThenDoLogin(context);
+                      },
+                    ),
+                    verticalSpace(16),
+                    const TermsAndConditionsText(),
+                    verticalSpace(60),
+                    const AlreadyHaveAccountText(),
+                    const LoginBlocListener(),
+                  ],
                 ),
               ],
             ),
@@ -86,5 +66,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void validateThenDoLogin(BuildContext context) {
+    if (context.read<LoginCubit>().formKey.currentState!.validate()) {
+      context.read<LoginCubit>().emitLoginStates(
+            LoginRequestBody(
+              email: context.read<LoginCubit>().emailController.text,
+              password: context.read<LoginCubit>().passwordController.text,
+            ),
+          );
+    }
   }
 }

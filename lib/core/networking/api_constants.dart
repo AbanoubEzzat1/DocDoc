@@ -3,7 +3,7 @@ class ApiConstants {
   static const String apiBaseUrl = "https://vcare.integration25.com/api/";
 
   //API EndPoints
-  static const login = "auth/login";
+  static const String login = "auth/login";
 }
 
 // API Errors
