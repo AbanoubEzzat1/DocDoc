@@ -5,7 +5,5 @@ import 'package:flutter/material.dart';
 
 void main() {
   setupGetIt();
-  runApp(DocApp(
-    appRouter: AppRouter(),
-  ));
+  runApp(DocApp(appRouter: AppRouter()));
 }
